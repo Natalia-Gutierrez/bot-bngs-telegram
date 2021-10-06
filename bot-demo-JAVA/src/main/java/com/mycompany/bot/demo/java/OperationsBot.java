@@ -5,8 +5,10 @@
  */
 package com.mycompany.bot.demo.java;
 
+import java.util.ArrayList;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 /**
@@ -15,92 +17,154 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
  */
 public class OperationsBot extends TelegramLongPollingBot{
     
+    @Override
     public String getBotToken() {
         return "2014781268:AAEVJwsyr99zxRwUvmgDVmQjqZWyQBVThT0";
     }
-
+    ArrayList<Integer> Cuentas = new ArrayList<Integer>();
+    ArrayList<Usuario> usuariosRegistrados = new ArrayList<Usuario>();
+    @Override
     public void onUpdateReceived(Update update) {
-        System.out.println("Llego mensaje: " + update.toString());
         if(update.hasMessage()) { // Verificamos que tenga mensaje
-            // Creo el objeto para enviar un mensaje
-            SendMessage message = new SendMessage();
-            message.setChatId(update.getMessage().getChatId().toString()); //Define a quien le vamos a enviar el mensaje
-            message.setText(update.getMessage().getFrom().getFirstName()+", Bienvenid@ al Bot Calculadora\n"
-                    + "Seleccione una de las siguientes opciones:"
-                    + "\n1. Sumar dos números"
-                    + "\n2. Calcular serie de fibonacci."
-            );
-            try {
-                execute(message); // Envia el mensaje
-                String m = message.getText();
-                if(esEntero(m)==true){
-                    int mm=Integer.valueOf(m);
-                    if(mm==1){
-                        suma(update);
-                    }
-                    else if(mm==2){
-                        fibo(update);
-                    }
-                    else{
-                        message.setText(update.getMessage().getFrom().getFirstName()+" elige una opcion que exista");
-                    }
-                }
-                else{
-                    onUpdateReceived(update);
-                }
-            } catch (TelegramApiException e) {
+            try{
+                Message mensajeRecibido = update.getMessage(); 
+                Long userID = mensajeRecibido.getChatId(); //Se obtiene el id del usuario
+                SendMessage message = new SendMessage();
+                System.out.println("Mensaje: "+mensajeRecibido.getText()+"\nLlego mensaje: " + update.toString());
+                boolean flag;
+                do{
+                    Cliente usuariosRegistrados = new Cliente(userID,1); //Obtenemos un objeto tipo Usuario dentro de la list
+                    message.setChatId(update.getMessage().getChatId().toString()); //Define a quien le vamos a enviar el mensaje
+                    for(int i=0;i<usuariosRegistrados.size();i++){
+                        int state=usuariosRegistrados.get(i).getStatus();
+                    switch (state){{
+                    case 1://Usuario o no usuario
+                        //No usuario
+                        message.setText("Bienvenido al Banco de la Fortuna"+mensajeRecibido.getFrom().getFirstName());
+                        if(usuariosRegistrados.contains(usuario.getIdUser().toString())){
+                            message.setText("He notado que aún no eres cliente, procedamos a registrarte."+mensajeRecibido.getFrom().getFirstName());
+                            usuarios.get(i).setStatus(2);
+
+                         break;
+                        }
+                        //Si usuario
+                        else{   
+                            message.setText("Hola de nuevo "+mensajeRecibido.getFrom().getFirstName()+ "!");
+                            execute(message);
+                            message.setText("Solo por seguridad ¿cuál es tu PIN?");
+                            execute(message);
+                            usuariosRegistrados.get(i).setStatus(3);
+                        }
+                        break;
+                        }
+                        case 2: //Recibiendo el mensaje
+                        message.setText("¿Cual es tu nombre completo?");
+                        usuariosRegistrados.get(i).setNombre(update.getMessage().getText());
+                        message.setText("Por favor elige un PIN de seguridad, este te\n" +
+                                        "será requerido cada que ingreses al\n" +
+                                        "sistema");
+                        usuariosRegistrados.get(i).setPinDeSeguridad(update.getMessage().getText());
+                        message.setText("Te hemos registrado correctamente!");
+                        usuariosRegistrados.get(i).setStatus(1);
+                        break;
+                        case 3: 
+                        try{
+                            int pin = Integer.parseInteger(mensajeRecibido.getText());
+                            if ((update.getMessage().getText()).equals(usuarios.get(i).getPin())) {
+                                    message.setText("Bienvenido");
+                                    usuariosRegistrados.get(i).setStatus(4);
+                                    break;
+                            }
+                            else{
+                                message.setText("Lo siento, el código es incorrecto");
+                            }
+                        }catch(NumberFormatException e){
+                            usuariosRegistrados.get(i).setStatus(1);
+                            break;
+                        }
+                        flag = true;break;
+                        case 4:
+                        try{
+                            message.setText("Elige una opción:"+mensajeRecibido.getFrom().getFirstName()+"\n"+
+                                    "1. Ver Saldo\n" +
+                                    "2. Retirar dinero.\n" +
+                                    "3. Depositar dinero.\n" +
+                                    "4. Crear cuenta\n" +
+                                    "5. Salir");
+                            if(usuariosRegistrados.contains()){
+                                Cuenta cuenta = new Cuenta();
+                                if(mensajeRecibido.getText().equals("1")){
+                                message.setText("Seleccione una de sus cuentas:\n"+usuariosRegistrados.get(i).getListaDeCuentas());
+                                    if(mensajeRecibido.getText().equals(getNroCuenta())){
+                                        cuenta.toString();
+                                        usuariosRegistrados.get(i).setStatus(4);
+                                    }
+                                }
+                                else if(mensajeRecibido.getText().equals("2")){
+                                message.setText("Seleccione una de sus cuentas:\n"+usuariosRegistrados.get(i).getListaDeCuentas());
+                                    if(mensajeRecibido.getText().equals(getNroCuenta())){
+                                    message.setText("Ingrese el monto a retirar");
+                                    double monto = Double.parseDouble(mensajeRecibido.getText());
+                                    boolean estado = cuenta.retirar(monto);
+                                        if(estado==true){
+                                            message.setText("Se realizo el retiro");
+                                        }
+                                        else{
+                                            message.setText("No se realizo el retiro porque el monto a retirar es mayor al monto de la cuenta");
+                                        }
+                                    }
+                                usuariosRegistrados.get(i).setStatus(4);
+                                }
+                                else if(mensajeRecibido.getText().equals("3")){
+                                    message.setText("Seleccione una de sus cuentas:\n"+usuariosRegistrados.get(i).getListaDeCuentas());
+                                    message.setText("Ingrese el monto a depositar");
+                                    double monto = Double.parseDouble(mensajeRecibido.getText());
+                                    boolean estado = cuenta.deposito(monto);
+                                    if(estado==true){
+                                        message.setText("Se realizo el deposito");
+                                    }
+                                    else{
+                                        message.setText("No se realizo el deposito, porque es un numero negativo");
+                                    }
+                                    usuariosRegistrados.get(i).setStatus(4);
+                                }
+                                else if(mensajeRecibido.getText().equals("4")){
+
+                                    usuariosRegistrados.get(i).setStatus(4);
+                                }
+                                else if(mensajeRecibido.getText().equals("5")){
+                                    usuariosRegistrados.get(i).setStatus(1);
+                                }
+                            }
+                            else{
+                                message.setText("Usted no tiene cuentas, cree una primero");
+                                usuariosRegistrados.get(i).setStatus(4);
+                            }
+                        }catch(NumberFormatException e){
+                            System.out.println("Error");
+                        }
+                        flag = true; i = 0; break;
+
+                        }
+                } while(flag);
+                execute(message);
+            }catch (TelegramApiException e){
                 e.printStackTrace();
             }
         }
     }
-
+    @Override
     public String getBotUsername() {
         return "ucb_natalia_bot";
     }
-    public void suma(Update update){
-        try {
-            int s,a,b;
-            SendMessage message = new SendMessage();
-            message.setChatId(update.getMessage().getChatId().toString());
-            message.setText(update.getMessage().getFrom().getFirstName()+", ingresa el primer número");
-            execute(message); // Envia el mensaje
-            String at = message.getText();
-            if(esEntero(at)==true){
-                a=Integer.valueOf(at);
-                message.setText(update.getMessage().getFrom().getFirstName()+", ingresa el segundo número");
-                execute(message);
-                String bt = message.getText();
-                if(esEntero(bt)==true){
-                    b=Integer.valueOf(at);
-                    s=a+b;
-                    message.setText("La suma es: "+s);
-                }
-            }
-            onUpdateReceived(update);            
-        }
-        catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-    public void fibo(Update update){
-        System.out.println("Llego mensaje: " + update.toString());
-        if(update.hasMessage()) { // Verificamos que tenga mensaje
-            // Creo el objeto para enviar un mensaje
-            SendMessage message = new SendMessage();
-            message.setChatId(update.getMessage().getChatId().toString()); //Define a quien le vamos a enviar el mensaje
-            message.setText(update.getMessage().getFrom().getFirstName()+"Funcionalidad no implementada, intente otro día.");
-            try {
-                execute(message); // Envia el mensaje
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+    public Cliente obtenerUser(Long usuarioID){
+        for (Usuario datoUsuario: listaUsuarios) {
+            if(datoUsuario.getIdUser().equals(usuarioID)){
+                return datoUsuario;
             }
         }
-    }
-    public boolean esEntero(String cad){
-        for(int i = 0; i<cad.length(); i++)
-        if( !Character.isDigit(cad.charAt(i)) )
-        return false;
-
-        return true;
+        Usuario usuario = new Usuario(usuarioID);
+        listaUsuarios.add(usuario);
+        return usuario;
     }
 }
