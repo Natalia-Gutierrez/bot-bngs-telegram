@@ -132,12 +132,14 @@ public class OperationsBot extends TelegramLongPollingBot{
                                 }
                                 else if(mensajeRecibido.getText().equals("5")){
                                     usuariosRegistrados.get(i).setStatus(1);
+                                    break;
                                 }
                             }
                             else{
                                 message.setText("Usted no tiene cuentas, cree una primero");
                                 usuariosRegistrados.get(i).setStatus(4);
                             }
+                        break;
                         }catch(NumberFormatException e){
                             System.out.println("Error");
                         }
@@ -145,10 +147,10 @@ public class OperationsBot extends TelegramLongPollingBot{
 
                         }
                 execute(message);
-            
-        }}catch (TelegramApiException e){
-                e.printStackTrace();
             }
+        }catch (TelegramApiException e){
+            e.printStackTrace();
+        }
     }
 }
     @Override

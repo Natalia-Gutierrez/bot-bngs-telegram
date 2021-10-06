@@ -9,8 +9,6 @@ import java.util.ArrayList;
 public class Cliente {
     private Long idCliente;
     private int status;
-    private int opc;
-    private int opcCuenta;
     private String nombre;
     private String pinDeSeguridad;
     private double monto;
@@ -33,14 +31,6 @@ public class Cliente {
 
     public int getStatus() {
         return estado;
-    }
-    
-    public int getOpc() {
-        return opcion;
-    }
-    
-    public int getOpcCuenta() {
-        return opcionCuenta;
     }
 
     public String getNombre() {
@@ -81,14 +71,6 @@ public class Cliente {
 
     public void setStatus(int status) {
         this.status=status;
-    }
-    
-    public void setOpcion(int opcion) {
-        this.opcion=opcion;
-    }
-    
-    public void setOpcionCuenta(int opcionCuenta) {
-        this.opcionCuenta=opcionCuenta;
     }
 
     public void setNombre(String nombre) {
