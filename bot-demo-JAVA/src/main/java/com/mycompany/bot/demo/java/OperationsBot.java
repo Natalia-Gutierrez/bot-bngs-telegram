@@ -32,12 +32,11 @@ public class OperationsBot extends TelegramLongPollingBot{
                 SendMessage message = new SendMessage();
                 System.out.println("Mensaje: "+mensajeRecibido.getText()+"\nLlego mensaje: " + update.toString());
                 boolean flag;
-                do{
                     Cliente usuariosRegistrados = new Cliente(userID,1); //Obtenemos un objeto tipo Usuario dentro de la list
                     message.setChatId(update.getMessage().getChatId().toString()); //Define a quien le vamos a enviar el mensaje
                     for(int i=0;i<usuariosRegistrados.size();i++){
                         int state=usuariosRegistrados.get(i).getStatus();
-                    switch (state){{
+                    switch (state){
                     case 1://Usuario o no usuario
                         //No usuario
                         message.setText("Bienvenido al Banco de la Fortuna"+mensajeRecibido.getFrom().getFirstName());
@@ -56,7 +55,6 @@ public class OperationsBot extends TelegramLongPollingBot{
                             usuariosRegistrados.get(i).setStatus(3);
                         }
                         break;
-                        }
                         case 2: //Recibiendo el mensaje
                         message.setText("¿Cual es tu nombre completo?");
                         usuariosRegistrados.get(i).setNombre(update.getMessage().getText());
@@ -146,13 +144,13 @@ public class OperationsBot extends TelegramLongPollingBot{
                         flag = true; i = 0; break;
 
                         }
-                } while(flag);
                 execute(message);
-            }catch (TelegramApiException e){
+            
+        }}catch (TelegramApiException e){
                 e.printStackTrace();
             }
-        }
     }
+}
     @Override
     public String getBotUsername() {
         return "ucb_natalia_bot";
