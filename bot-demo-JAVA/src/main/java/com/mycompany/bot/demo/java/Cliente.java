@@ -113,8 +113,6 @@ public class Cliente {
     public String toString() {
         return "Usuario{"+"idUser="+idCliente+", "
         + "estado="+status+", "
-        + "Opcion="+opc+", "
-        + "Opcion Cuenta="+opcCuenta+", "
         + "Nombre de usuario="+nombre+", "
         + "Pin de Seguridad="+pinDeSeguridad+", "
         + "Monto="+monto+", "
